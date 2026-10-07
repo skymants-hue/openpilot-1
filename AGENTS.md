@@ -9,7 +9,11 @@
   driving/DM models, control, validity, C3 warp validation and startup fallback.
   NAS HTTPS full-file verification, 121 desktop/Linux contract tests, 11 Web
   tests and an actual pinned-runtime CPU warp/serialization roundtrip pass.
-  C3/C4 accelerator execution and driving remain unvalidated.
+  A later user-approved reboot confirmed exact MDM activation and finite parked
+  C4 camera inference. Core7 mean87.7% (old v3) versus83.1% (MDM) is a short
+  sequential observation, not controlled model performance. Host worker, modeld,
+  DM and cluster remain colocated on core7; no affinity or policy was changed.
+  C3, sustained thermal behavior and driving remain unvalidated.
   See docs/mdm_v1_20261007.md for provenance and validation limits.
 
 - On 2026-10-05, the user clarified that instructions such as "작업해" or
