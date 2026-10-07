@@ -7,6 +7,9 @@
   official public model repository at inspection. Jetson still uses Cinque v2;
   do not claim it is MDM or substitute another checkpoint. Preserve internal
   driving/DM models, control, validity, C3 warp validation and startup fallback.
+  NAS HTTPS full-file verification, 121 desktop/Linux contract tests, 11 Web
+  tests and an actual pinned-runtime CPU warp/serialization roundtrip pass.
+  C3/C4 accelerator execution and driving remain unvalidated.
   See docs/mdm_v1_20261007.md for provenance and validation limits.
 
 - On 2026-10-05, the user clarified that instructions such as "작업해" or
