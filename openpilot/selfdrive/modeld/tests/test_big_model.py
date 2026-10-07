@@ -60,16 +60,16 @@ def test_manifest_resolves_relative_https_url():
   assert manifest.cache_filename.endswith(".onnx")
 
 
-def test_default_manifest_is_pinned_to_cinque_v3(monkeypatch):
+def test_default_manifest_is_pinned_to_mdm_v1(monkeypatch):
   monkeypatch.setattr(big_model, "urlopen", lambda *_args, **_kwargs: pytest.fail("default manifest must be built in"))
   manifest = big_model.fetch_manifest()
-  assert big_model.DEFAULT_MANIFEST_URL == "https://upload.shind0.synology.me/models/comma4-big-cinque-v3/manifest.json"
-  assert manifest.model_id == "comma-pr38932-cinque-v3-892fc3a1-e758b96d"
-  assert manifest.size == 776_634_338
-  assert manifest.sha256 == "e758b96df27858ea97122d18554930d04f9f8bda417417074edfb3a72b008d0b"
-  assert manifest.url == "https://upload.shind0.synology.me/models/comma4-big-cinque-v3/big_driving_tinygrad.pkl"
+  assert big_model.DEFAULT_MANIFEST_URL == "https://upload.shind0.synology.me/models/comma4-big-mdm-v1/manifest.json"
+  assert manifest.model_id == "comma-pr39047-mdm-v1-bea3fd4f-4fe66440"
+  assert manifest.size == 773_090_994
+  assert manifest.sha256 == "4fe66440ef38c94ddbe315e14174912975014a96384201a8a632aabbe2302d66"
+  assert manifest.url == "https://upload.shind0.synology.me/models/comma4-big-mdm-v1/big_driving_tinygrad.pkl"
   assert manifest.precompiled_only
-  assert manifest.cache_filename == "big_driving_tinygrad-e758b96df27858ea.pkl"
+  assert manifest.cache_filename == "big_driving_tinygrad-4fe66440ef38c94d.pkl"
 
 
 def test_precompiled_only_model_never_uses_a_local_onnx_build(tmp_path, monkeypatch):

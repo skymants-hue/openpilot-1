@@ -1,5 +1,14 @@
 # Repository memory
 
+- On 2026-10-07, the user requested `carrot-mdm` for official Mountain Dew v1
+  PR #39047, starting from carrot-wip deb9b425fc. Scope the MDM eGPU artifact,
+  pinned tinygrad runtime and compatibility adapter to this branch. The PR
+  contains an AMD PKL only; the matching ea1600cb ONNX was absent from the
+  official public model repository at inspection. Jetson still uses Cinque v2;
+  do not claim it is MDM or substitute another checkpoint. Preserve internal
+  driving/DM models, control, validity, C3 warp validation and startup fallback.
+  See docs/mdm_v1_20261007.md for provenance and validation limits.
+
 - On 2026-10-05, the user clarified that instructions such as "작업해" or
   "진행해" include committing and pushing the completed task unless explicitly
   instructed otherwise. Commit only the task's changes; preserve unrelated work.
