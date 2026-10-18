@@ -6,6 +6,9 @@ from opendbc.car.hyundai.values import HyundaiFlags, CAR, DBC, CANFD_RADAR_SCC_C
                                                    CANFD_HYBRID_STATUS_ADDR, CANFD_HYBRID_STATUS_DLC, \
                                                    EV_MODE_STATUS_ADDR, EV_MODE_STATUS_DLC
 from opendbc.car.hyundai.radar_interface import RADAR_START_ADDR
+from opendbc.car.hyundai.radar_classic_238 import (
+  RADAR_TRACK_MODE_CLASSIC_238, classic_238_radar_available, classic_238_radar_frames_available,
+)
 from opendbc.car.interfaces import CarInterfaceBase
 from opendbc.car.disable_ecu import disable_ecu
 from opendbc.car.hyundai.carcontroller import CarController
@@ -197,7 +200,28 @@ class CarInterface(CarInterfaceBase):
 
     # carrot, if camera_scc enabled, enable openpilotLongitudinalControl
     enable_radar_tracks = params.get_int("EnableRadarTracks")
-    if ret.flags & HyundaiFlags.CAMERA_SCC.value or enable_radar_tracks > 0 or enable_radar_tracks == -2:
+    azera_classic_238 = (candidate == CAR.HYUNDAI_AZERA_6TH_GEN and not ret.flags & HyundaiFlags.CANFD and
+                         classic_238_radar_frames_available(fingerprint[1]))
+    if 1 <= enable_radar_tracks <= 3 and azera_classic_238:
+      # The Grandeur's Mando radar sends 0x238 objects, not the 32 legacy 0x500 slots.
+      # Keep modes 1-3 selection/fallback behavior, but parse the stream actually present.
+      ret.extFlags |= HyundaiExtFlags.RADAR_CLASSIC_238.value
+      ret.radarUnavailable = False
+      print(f"##### {candidate} classic 0x238 radar objects selected (EnableRadarTracks={enable_radar_tracks})")
+    if enable_radar_tracks == RADAR_TRACK_MODE_CLASSIC_238:
+      # Mode 5 does not send ECU activation commands or force openpilot longitudinal.
+      k7_classic = (candidate == CAR.KIA_K7_PE and not ret.flags & HyundaiFlags.CANFD and
+                    classic_238_radar_available(fingerprint[1]))
+      if k7_classic or azera_classic_238:
+        ret.extFlags |= HyundaiExtFlags.RADAR_CLASSIC_238.value
+        ret.radarUnavailable = False
+        print(f"##### {candidate} classic 0x238 radar objects selected (EnableRadarTracks=5)")
+      enable_radar_tracks = 0
+    if enable_radar_tracks == 4:
+      # Observe raw radar tracks without enabling the ECU or forcing longitudinal control.
+      ret.radarUnavailable = False
+      ret.openpilotLongitudinalControl = False
+    elif ret.flags & HyundaiFlags.CAMERA_SCC.value or enable_radar_tracks > 0 or enable_radar_tracks == -2:
       ret.radarUnavailable = False
       ret.openpilotLongitudinalControl = True if camera_scc < 3 else False
       print(f"$$$OenpilotLongitudinalControl = True, CAMERA_SCC({ret.flags & HyundaiFlags.CAMERA_SCC.value}) or RadarTracks{enable_radar_tracks}")
@@ -271,7 +295,7 @@ class CarInterface(CarInterfaceBase):
       disable_ecu(can_recv, can_send, bus=bus, addr=addr, com_cont_req=b'\x28\x83\x01')
 
     params = Params()
-    if params.get_int("EnableRadarTracks") > 0 and not CP.flags & HyundaiFlags.CANFD:
+    if 1 <= params.get_int("EnableRadarTracks") <= 3 and not CP.flags & HyundaiFlags.CANFD:
       result = enable_radar_tracks(CP, can_recv, can_send)
       params.put_bool("EnableRadarTracksResult", result)
 
